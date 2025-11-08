@@ -135,7 +135,9 @@ export default function AuthScreen() {
       router.push('/dashboard')
     } catch (error: any) {
       console.error('Error creating family:', error)
-      setError(error.message || 'Failed to create family. Please try again.')
+      // Show more detailed error message
+      const errorMessage = error?.message || 'Failed to create family. Please try again.'
+      setError(errorMessage + ' (Check browser console and Vercel logs for details)')
       setLoading(false)
     }
   }
@@ -171,6 +173,14 @@ export default function AuthScreen() {
 
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-800">
+                  <strong>New here?</strong> Create a new family. 
+                  <br />
+                  <strong>Already a member?</strong> If a family admin added your email ({session?.user?.email}), just sign in - you'll be automatically added to your family!
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Family Name
@@ -200,7 +210,8 @@ export default function AuthScreen() {
 
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {error}
+                  <p className="font-semibold mb-1">Error:</p>
+                  <p>{error}</p>
                 </div>
               )}
 

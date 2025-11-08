@@ -7,19 +7,34 @@ let dbInitialized = false
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/families - Starting request')
+    
     if (!dbInitialized) {
-      await initDatabase()
-      dbInitialized = true
+      console.log('Initializing database...')
+      try {
+        await initDatabase()
+        dbInitialized = true
+        console.log('Database initialized successfully')
+      } catch (dbError: any) {
+        console.error('Database initialization error:', dbError)
+        return NextResponse.json(
+          { error: `Database initialization failed: ${dbError.message}` },
+          { status: 500 }
+        )
+      }
     }
 
     // Verify user is authenticated via Google OAuth
+    console.log('Checking authentication...')
     const user = await getAuthenticatedUser(request)
     if (!user || !user.email) {
+      console.error('Authentication failed - no user or email')
       return NextResponse.json(
         { error: 'Authentication required. Please sign in with Google.' },
         { status: 401 }
       )
     }
+    console.log('User authenticated:', user.email)
 
     // Parse request body with error handling
     let body
@@ -43,18 +58,39 @@ export async function POST(request: NextRequest) {
     }
 
     // Create family
-    const familyResult = await query(
-      'INSERT INTO families (family_name) VALUES ($1) RETURNING id',
-      [familyName]
-    )
+    console.log('Creating family:', familyName)
+    let familyResult
+    try {
+      familyResult = await query(
+        'INSERT INTO families (family_name) VALUES ($1) RETURNING id',
+        [familyName]
+      )
+      console.log('Family created with ID:', familyResult.rows[0].id)
+    } catch (dbError: any) {
+      console.error('Database error creating family:', dbError)
+      return NextResponse.json(
+        { error: `Database error: ${dbError.message}. Please check if database tables are initialized.` },
+        { status: 500 }
+      )
+    }
     const familyId = familyResult.rows[0].id
 
     // Add first member as admin
-    await query(
-      `INSERT INTO family_members (family_id, email, name, is_admin)
-       VALUES ($1, $2, $3, $4)`,
-      [familyId, email.toLowerCase(), memberName, true]
-    )
+    console.log('Adding family member:', email, memberName)
+    try {
+      await query(
+        `INSERT INTO family_members (family_id, email, name, is_admin)
+         VALUES ($1, $2, $3, $4)`,
+        [familyId, email.toLowerCase(), memberName, true]
+      )
+      console.log('Family member added successfully')
+    } catch (dbError: any) {
+      console.error('Database error adding member:', dbError)
+      return NextResponse.json(
+        { error: `Database error adding member: ${dbError.message}` },
+        { status: 500 }
+      )
+    }
 
     // Add default categories
     const defaultCategories = [
@@ -68,13 +104,21 @@ export async function POST(request: NextRequest) {
       'Other',
     ]
 
-    for (const category of defaultCategories) {
-      await query(
-        'INSERT INTO categories (family_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [familyId, category]
-      )
+    console.log('Adding default categories...')
+    try {
+      for (const category of defaultCategories) {
+        await query(
+          'INSERT INTO categories (family_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+          [familyId, category]
+        )
+      }
+      console.log('Default categories added')
+    } catch (dbError: any) {
+      console.error('Database error adding categories:', dbError)
+      // Don't fail the entire request if categories fail, just log it
     }
 
+    console.log('Family creation completed successfully')
     return NextResponse.json({
       success: true,
       familyId,
