@@ -34,10 +34,14 @@ Or manually run the SQL from `scripts/migrations/001_initial_schema.sql` in your
 
 **In Vercel Dashboard → Project Settings → Environment Variables:**
 
-Add **ONLY** the read-write connection:
+Add the following environment variables:
 
 ```
 DATABASE_URL=postgresql://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+NEXTAUTH_SECRET=your-nextauth-secret
+NEXTAUTH_URL=https://your-app.vercel.app
 ```
 
 **Do NOT add `DATABASE_URL_DDL`** - It's only needed for:
@@ -50,6 +54,29 @@ DATABASE_URL=postgresql://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aw
 1. Click "Deploy"
 2. Wait for the build to complete
 3. Your app will be live at `https://your-app.vercel.app`
+4. **Note your deployment URL** - you'll need it for the next step!
+
+### Step 5: ⚠️ IMPORTANT - Update Google OAuth Settings
+
+**After deployment, you MUST update Google OAuth with your production URL:**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Navigate to "APIs & Services" > "Credentials"
+3. Click on your OAuth 2.0 Client ID
+4. **Add Authorized JavaScript origins:**
+   - Click "Add URI"
+   - Add: `https://your-app.vercel.app` (use your actual Vercel URL)
+   - No trailing slash!
+   - Click "Save"
+5. **Add Authorized redirect URIs:**
+   - Click "Add URI"
+   - Add: `https://your-app.vercel.app/api/auth/callback/google`
+   - No trailing slash!
+   - Click "Save"
+
+**⚠️ Without this step, Google OAuth authentication will NOT work in production!**
+
+See `GOOGLE_OAUTH_SETUP.md` for detailed instructions.
 
 ## Why Only DATABASE_URL in Production?
 
@@ -60,11 +87,12 @@ DATABASE_URL=postgresql://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aw
 
 ## Verification
 
-After deployment:
+After deployment and updating Google OAuth:
 
 1. Visit your Vercel URL
-2. Try creating a family (this will verify database connection)
-3. Check Vercel logs for any errors
+2. Try signing in with Google (this will verify OAuth is working)
+3. Try creating a family (this will verify database connection)
+4. Check Vercel logs for any errors
 
 ## Troubleshooting
 
@@ -88,11 +116,16 @@ After deployment:
 |----------|------------|---------------------|
 | `DATABASE_URL` | ✅ Required | ✅ Required |
 | `DATABASE_URL_DDL` | ✅ Optional (for migrations) | ❌ Not needed |
+| `GOOGLE_CLIENT_ID` | ✅ Required | ✅ Required |
+| `GOOGLE_CLIENT_SECRET` | ✅ Required | ✅ Required |
+| `NEXTAUTH_SECRET` | ✅ Required | ✅ Required |
+| `NEXTAUTH_URL` | ✅ Required (localhost) | ✅ Required (Vercel URL) |
 
 ## Next Steps
 
-After deployment:
-1. Test the app functionality
-2. Install as PWA on your phone (see `INSTALL_APP.md`)
-3. Share with family members!
+After deployment and updating Google OAuth:
+1. ✅ Update Google OAuth settings with your Vercel URL (Step 5 above)
+2. Test the app functionality (sign in, create family, etc.)
+3. Install as PWA on your phone (see `INSTALL_APP.md`)
+4. Share with family members!
 

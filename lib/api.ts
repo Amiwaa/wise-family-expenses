@@ -18,11 +18,37 @@ export async function createFamily(familyName: string, memberName: string) {
     body: JSON.stringify({ familyName, memberName }),
     credentials: 'include',
   })
+  
+  // Get response text first (can only read once)
+  const text = await response.text()
+  
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || 'Failed to create family')
+    // Try to parse error response, but handle empty or invalid JSON
+    let errorMessage = 'Failed to create family'
+    try {
+      if (text) {
+        const error = JSON.parse(text)
+        errorMessage = error.error || errorMessage
+      } else {
+        errorMessage = response.statusText || errorMessage
+      }
+    } catch (e) {
+      // If parsing fails, use the text or status text
+      errorMessage = text || response.statusText || errorMessage
+    }
+    throw new Error(errorMessage)
   }
-  return response.json()
+  
+  // Parse successful response
+  try {
+    if (text) {
+      return JSON.parse(text)
+    }
+    return {}
+  } catch (e) {
+    console.error('Error parsing response JSON:', e)
+    throw new Error('Invalid response from server')
+  }
 }
 
 export async function getFamilyByEmail(email?: string) {
@@ -31,11 +57,37 @@ export async function getFamilyByEmail(email?: string) {
     headers: getHeaders(),
     credentials: 'include',
   })
+  
+  // Get response text first (can only read once)
+  const text = await response.text()
+  
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || 'Failed to fetch family')
+    // Try to parse error response, but handle empty or invalid JSON
+    let errorMessage = 'Failed to fetch family'
+    try {
+      if (text) {
+        const error = JSON.parse(text)
+        errorMessage = error.error || errorMessage
+      } else {
+        errorMessage = response.statusText || errorMessage
+      }
+    } catch (e) {
+      // If parsing fails, use the text or status text
+      errorMessage = text || response.statusText || errorMessage
+    }
+    throw new Error(errorMessage)
   }
-  return response.json()
+  
+  // Parse successful response
+  try {
+    if (text) {
+      return JSON.parse(text)
+    }
+    return {}
+  } catch (e) {
+    console.error('Error parsing response JSON:', e)
+    throw new Error('Invalid response from server')
+  }
 }
 
 export async function addFamilyMember(familyId: number, email: string, name: string) {

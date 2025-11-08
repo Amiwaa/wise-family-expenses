@@ -62,9 +62,39 @@ openssl rand -base64 32
    - `NEXTAUTH_SECRET`: Your generated secret
    - `NEXTAUTH_URL`: Your production domain (e.g., `https://your-app.vercel.app`)
 
-4. Update Google OAuth redirect URI to include your production URL
+### 4. ⚠️ IMPORTANT: Update Google OAuth After Deployment
 
-### 4. How It Works
+**After deploying to Vercel, you MUST update Google OAuth settings with your production URL:**
+
+1. **Get your Vercel deployment URL**
+   - After deployment, you'll get a URL like `https://your-app.vercel.app`
+   - Copy this URL exactly
+
+2. **Go to Google Cloud Console**
+   - Navigate to [Google Cloud Console](https://console.cloud.google.com/)
+   - Go to "APIs & Services" > "Credentials"
+   - Click on your OAuth 2.0 Client ID
+
+3. **Add Authorized JavaScript origins**
+   - Click "Add URI" under "Authorized JavaScript origins"
+   - Add: `https://your-app.vercel.app` (replace with your actual Vercel URL)
+   - **Important:** No trailing slash!
+   - Click "Save"
+
+4. **Add Authorized redirect URIs**
+   - Click "Add URI" under "Authorized redirect URIs"
+   - Add: `https://your-app.vercel.app/api/auth/callback/google` (replace with your actual Vercel URL)
+   - **Important:** No trailing slash!
+   - Click "Save"
+
+5. **Verify your settings**
+   - You should now have BOTH localhost and production URLs:
+     - JavaScript origins: `http://localhost:3000` AND `https://your-app.vercel.app`
+     - Redirect URIs: `http://localhost:3000/api/auth/callback/google` AND `https://your-app.vercel.app/api/auth/callback/google`
+
+**⚠️ Without this step, Google OAuth will NOT work in production!**
+
+### 5. How It Works
 
 1. **User signs in**: Users click "Sign in with Google" and authenticate via Google
 2. **Session creation**: NextAuth creates a secure session using HTTP-only cookies
@@ -75,7 +105,7 @@ openssl rand -base64 32
    - User is a member of the requested family
    - Admin actions require admin privileges
 
-### 5. Adding Family Members
+### 6. Adding Family Members
 
 1. Family admins can add members by entering their email address
 2. The new member must sign in with the same Google email address

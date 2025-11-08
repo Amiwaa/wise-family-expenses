@@ -21,7 +21,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid request body. Expected JSON.' },
+        { status: 400 }
+      )
+    }
+
     const { familyName, memberName } = body
     const email = user.email // Use authenticated user's email
 
@@ -72,9 +82,16 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error creating family:', error)
+    // Ensure we always return valid JSON
+    const errorMessage = error?.message || 'Failed to create family'
     return NextResponse.json(
-      { error: error.message || 'Failed to create family' },
-      { status: 500 }
+      { error: errorMessage },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     )
   }
 }

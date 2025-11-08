@@ -71,6 +71,19 @@ CREATE TABLE IF NOT EXISTS custom_section_transactions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create debts table
+CREATE TABLE IF NOT EXISTS debts (
+  id SERIAL PRIMARY KEY,
+  family_id INTEGER NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+  amount DECIMAL(10, 2) NOT NULL,
+  description TEXT,
+  creditor VARCHAR(255),
+  due_date DATE,
+  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'overdue')),
+  added_by VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create categories table
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL PRIMARY KEY,
@@ -84,5 +97,6 @@ CREATE INDEX IF NOT EXISTS idx_family_members_family_id ON family_members(family
 CREATE INDEX IF NOT EXISTS idx_expenses_family_id ON expenses(family_id);
 CREATE INDEX IF NOT EXISTS idx_savings_family_id ON savings(family_id);
 CREATE INDEX IF NOT EXISTS idx_currents_family_id ON currents(family_id);
+CREATE INDEX IF NOT EXISTS idx_debts_family_id ON debts(family_id);
 CREATE INDEX IF NOT EXISTS idx_custom_sections_family_id ON custom_sections(family_id);
 
