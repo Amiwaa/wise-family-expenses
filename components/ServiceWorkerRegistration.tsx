@@ -43,6 +43,37 @@ export default function ServiceWorkerRegistration() {
         })
 
         console.log('✅ Service Worker registered successfully:', registration.scope)
+        console.log('Service Worker state:', registration.installing?.state || registration.waiting?.state || registration.active?.state)
+        
+        // If service worker is installing, wait for it to activate
+        if (registration.installing) {
+          registration.installing.addEventListener('statechange', (e: any) => {
+            if (e.target.state === 'activated') {
+              console.log('✅ Service Worker activated and ready')
+              // Force service worker to take control
+              if (navigator.serviceWorker.controller) {
+                console.log('✅ Service Worker is controlling the page')
+              } else {
+                console.log('⚠️ Service Worker registered but not controlling yet. Reloading...')
+                // Reload to let service worker take control
+                setTimeout(() => {
+                  window.location.reload()
+                }, 1000)
+              }
+            }
+          })
+        } else if (registration.waiting) {
+          // Service worker is waiting, skip waiting to activate it
+          console.log('Service Worker is waiting, activating...')
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        } else if (registration.active) {
+          console.log('✅ Service Worker is active')
+          if (navigator.serviceWorker.controller) {
+            console.log('✅ Service Worker is controlling the page')
+          } else {
+            console.log('⚠️ Service Worker active but not controlling. Page may need reload.')
+          }
+        }
         
         // Check for updates
         registration.addEventListener('updatefound', () => {

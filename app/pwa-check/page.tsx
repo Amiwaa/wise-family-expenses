@@ -54,6 +54,20 @@ export default function PWACheckPage() {
           serviceWorker = !!registration
           if (!serviceWorker) {
             errors.push('Service worker not registered')
+          } else {
+            // Check if service worker is controlling the page
+            const isControlling = !!navigator.serviceWorker.controller
+            if (!isControlling) {
+              errors.push('Service worker registered but not controlling the page. Try reloading the page.')
+            }
+            // Check service worker state
+            if (registration.active) {
+              console.log('Service Worker state: active')
+            } else if (registration.waiting) {
+              errors.push('Service worker is waiting. It may need to be activated.')
+            } else if (registration.installing) {
+              errors.push('Service worker is installing. Wait for it to activate.')
+            }
           }
         } catch (e: any) {
           errors.push(`Service worker check failed: ${e.message}`)
@@ -63,8 +77,12 @@ export default function PWACheckPage() {
       }
 
       // Check if installable
-      if (manifest && serviceWorker) {
+      // For proper installation, service worker must be registered AND controlling the page
+      const isControlling = !!navigator.serviceWorker.controller
+      if (manifest && serviceWorker && isControlling) {
         installable = true
+      } else if (manifest && serviceWorker && !isControlling) {
+        errors.push('Service worker is registered but not controlling. Reload the page to activate it.')
       }
 
       setStatus({
@@ -96,6 +114,13 @@ export default function PWACheckPage() {
             <span className="font-semibold">Service Worker</span>
             <span className={status.serviceWorker ? 'text-green-600' : 'text-red-600'}>
               {status.serviceWorker ? '✅ Registered' : '❌ Not Registered'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <span className="font-semibold">Service Worker Controlling</span>
+            <span className={typeof window !== 'undefined' && navigator.serviceWorker?.controller ? 'text-green-600' : 'text-yellow-600'}>
+              {typeof window !== 'undefined' && navigator.serviceWorker?.controller ? '✅ Yes' : '⚠️ No (reload page)'}
             </span>
           </div>
 
