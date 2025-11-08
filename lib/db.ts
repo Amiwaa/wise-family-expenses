@@ -47,12 +47,46 @@ export async function queryDDL(text: string, params?: any[]) {
   }
 }
 
+// Check if a table exists
+async function tableExists(tableName: string): Promise<boolean> {
+  try {
+    const result = await query(
+      `SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = $1
+      )`,
+      [tableName]
+    )
+    return result.rows[0].exists
+  } catch (error) {
+    console.error(`Error checking if table ${tableName} exists:`, error)
+    return false
+  }
+}
+
 // Initialize database tables
 // Note: In production, tables should already exist (created during setup)
 // This function uses CREATE TABLE IF NOT EXISTS, so it's safe to run
 // If DATABASE_URL_DDL is not set, it will fallback to DATABASE_URL
 export async function initDatabase() {
   try {
+    // In production, check if tables exist first
+    // If they don't exist, we can't create them with read-write user
+    if (process.env.NODE_ENV === 'production') {
+      const familiesTableExists = await tableExists('families')
+      if (!familiesTableExists) {
+        throw new Error(
+          'Database tables do not exist. Please run the database migration SQL in your Neon SQL Editor using the DDL/owner connection. ' +
+          'See scripts/migrations/001_initial_schema.sql for the SQL to run.'
+        )
+      }
+      // Tables exist, no need to create them
+      console.log('Database tables already exist, skipping initialization')
+      return
+    }
+    
+    // In development, try to create tables if they don't exist
     // Create families table
     await queryDDL(`
       CREATE TABLE IF NOT EXISTS families (
