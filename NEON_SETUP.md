@@ -24,7 +24,7 @@ You should have two connection strings from Neon:
 
 Example connection strings:
 ```
-postgresql://username:password@ep-xxxxx.us-east-2.aws.neon.tech/dbname?sslmode=require&channel_binding=require
+postgres://username:password@ep-xxxxx.us-east-2.aws.neon.tech/dbname?sslmode=require&channel_binding=require
 ```
 
 ## Step 3: Set Environment Variables
@@ -33,10 +33,10 @@ postgresql://username:password@ep-xxxxx.us-east-2.aws.neon.tech/dbname?sslmode=r
 2. Add both connection strings:
    ```env
    # Read-Write Connection (for regular user operations)
-   DATABASE_URL=postgresql://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
+   DATABASE_URL=postgres://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
 
    # DDL Connection (for schema changes)
-   DATABASE_URL_DDL=postgresql://neondb_owner:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
+   DATABASE_URL_DDL=postgres://neondb_owner:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
    ```
 3. Replace with your actual connection strings from Neon
 

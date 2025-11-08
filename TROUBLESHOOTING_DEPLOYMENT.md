@@ -122,7 +122,10 @@ Your local database and production database are **separate databases**. Data cre
 **Solution:** Database tables not initialized. Run the migration SQL in Neon.
 
 ### "Database initialization failed"
-**Solution:** Check `DATABASE_URL` in Vercel environment variables.
+**Solution:** 
+- Check `DATABASE_URL` in Vercel environment variables
+- **Important:** Use `postgres://` (not `postgresql://`) in the connection string
+- Verify the connection string format: `postgres://user:password@host/database?sslmode=require&channel_binding=require`
 
 ### "Authentication required"
 **Solution:** 

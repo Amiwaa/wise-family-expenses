@@ -37,7 +37,7 @@ Or manually run the SQL from `scripts/migrations/001_initial_schema.sql` in your
 Add the following environment variables:
 
 ```
-DATABASE_URL=postgresql://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
+DATABASE_URL=postgres://expenses_readwrite:password@ep-xxxxx.ap-southeast-1.aws.neon.tech/expenses_database?sslmode=require&channel_binding=require
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 NEXTAUTH_SECRET=your-nextauth-secret
