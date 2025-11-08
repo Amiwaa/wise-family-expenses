@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from './providers'
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 
 export const metadata: Metadata = {
   title: 'Wise Family Expenses',
@@ -37,7 +38,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Wise Expenses" />
       </head>
       <body className="bg-gray-50 antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <ServiceWorkerRegistration />
+          {children}
+        </Providers>
       </body>
     </html>
   )

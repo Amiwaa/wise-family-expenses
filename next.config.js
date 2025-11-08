@@ -1,11 +1,10 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
-  register: true,
+  register: false, // We'll register manually in the component
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development', // Disable PWA in development
   buildExcludes: [/app-build-manifest.json$/],
   sw: 'sw.js',
-  publicExcludes: ['!sw.js', '!workbox-*.js', '!workbox-*.js.map'],
   runtimeCaching: [
     {
       urlPattern: /^https?.*/,
