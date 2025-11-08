@@ -100,3 +100,15 @@ CREATE INDEX IF NOT EXISTS idx_currents_family_id ON currents(family_id);
 CREATE INDEX IF NOT EXISTS idx_debts_family_id ON debts(family_id);
 CREATE INDEX IF NOT EXISTS idx_custom_sections_family_id ON custom_sections(family_id);
 
+-- Grant permissions to read-write user
+-- Replace 'expenses_readwrite' with your actual read-write username if different
+GRANT USAGE ON SCHEMA public TO expenses_readwrite;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO expenses_readwrite;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO expenses_readwrite;
+
+-- Grant permissions on future tables (so new tables automatically get permissions)
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO expenses_readwrite;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT USAGE, SELECT ON SEQUENCES TO expenses_readwrite;
+
