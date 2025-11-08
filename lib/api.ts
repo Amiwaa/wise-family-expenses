@@ -12,81 +12,117 @@ function getHeaders() {
 }
 
 export async function createFamily(familyName: string, memberName: string) {
-  const response = await fetch(`${API_BASE}/families`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ familyName, memberName }),
-    credentials: 'include',
-  })
-  
-  // Get response text first (can only read once)
-  const text = await response.text()
-  
-  if (!response.ok) {
-    // Try to parse error response, but handle empty or invalid JSON
-    let errorMessage = 'Failed to create family'
+  try {
+    const response = await fetch(`${API_BASE}/families`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ familyName, memberName }),
+      credentials: 'include',
+    })
+    
+    console.log('Response status:', response.status)
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+    
+    // Get response text first (can only read once)
+    const text = await response.text()
+    console.log('Response text (first 500 chars):', text.substring(0, 500))
+    
+    if (!response.ok) {
+      // Try to parse error response, but handle empty or invalid JSON
+      let errorMessage = `Failed to create family (Status: ${response.status})`
+      try {
+        if (text && text.trim()) {
+          const error = JSON.parse(text)
+          errorMessage = error.error || errorMessage
+        } else {
+          errorMessage = response.statusText || errorMessage
+        }
+      } catch (e) {
+        // If parsing fails, use the text or status text
+        console.error('Error parsing error response:', e)
+        errorMessage = text || response.statusText || errorMessage
+      }
+      throw new Error(errorMessage)
+    }
+    
+    // Parse successful response
     try {
-      if (text) {
-        const error = JSON.parse(text)
-        errorMessage = error.error || errorMessage
+      if (text && text.trim()) {
+        const data = JSON.parse(text)
+        console.log('Successfully parsed response:', data)
+        return data
       } else {
-        errorMessage = response.statusText || errorMessage
+        console.warn('Empty response body, returning empty object')
+        return {}
       }
     } catch (e) {
-      // If parsing fails, use the text or status text
-      errorMessage = text || response.statusText || errorMessage
+      console.error('Error parsing response JSON:', e)
+      console.error('Response text that failed to parse:', text)
+      console.error('Response status:', response.status)
+      throw new Error(`Invalid response from server. Status: ${response.status}, Response: ${text.substring(0, 200)}`)
     }
-    throw new Error(errorMessage)
-  }
-  
-  // Parse successful response
-  try {
-    if (text) {
-      return JSON.parse(text)
+  } catch (error: any) {
+    // Handle network errors or other fetch errors
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      console.error('Network error:', error)
+      throw new Error('Network error: Could not connect to server. Please check your internet connection.')
     }
-    return {}
-  } catch (e) {
-    console.error('Error parsing response JSON:', e)
-    throw new Error('Invalid response from server')
+    // Re-throw other errors
+    throw error
   }
 }
 
 export async function getFamilyByEmail(email?: string) {
-  // Email is now extracted from the authenticated session on the server
-  const response = await fetch(`${API_BASE}/families`, {
-    headers: getHeaders(),
-    credentials: 'include',
-  })
-  
-  // Get response text first (can only read once)
-  const text = await response.text()
-  
-  if (!response.ok) {
-    // Try to parse error response, but handle empty or invalid JSON
-    let errorMessage = 'Failed to fetch family'
-    try {
-      if (text) {
-        const error = JSON.parse(text)
-        errorMessage = error.error || errorMessage
-      } else {
-        errorMessage = response.statusText || errorMessage
-      }
-    } catch (e) {
-      // If parsing fails, use the text or status text
-      errorMessage = text || response.statusText || errorMessage
-    }
-    throw new Error(errorMessage)
-  }
-  
-  // Parse successful response
   try {
-    if (text) {
-      return JSON.parse(text)
+    // Email is now extracted from the authenticated session on the server
+    const response = await fetch(`${API_BASE}/families`, {
+      headers: getHeaders(),
+      credentials: 'include',
+    })
+    
+    console.log('GET /api/families - Response status:', response.status)
+    
+    // Get response text first (can only read once)
+    const text = await response.text()
+    console.log('GET /api/families - Response text (first 500 chars):', text.substring(0, 500))
+    
+    if (!response.ok) {
+      // Try to parse error response, but handle empty or invalid JSON
+      let errorMessage = `Failed to fetch family (Status: ${response.status})`
+      try {
+        if (text && text.trim()) {
+          const error = JSON.parse(text)
+          errorMessage = error.error || errorMessage
+        } else {
+          errorMessage = response.statusText || errorMessage
+        }
+      } catch (e) {
+        // If parsing fails, use the text or status text
+        console.error('Error parsing error response:', e)
+        errorMessage = text || response.statusText || errorMessage
+      }
+      throw new Error(errorMessage)
     }
-    return {}
-  } catch (e) {
-    console.error('Error parsing response JSON:', e)
-    throw new Error('Invalid response from server')
+    
+    // Parse successful response
+    try {
+      if (text && text.trim()) {
+        return JSON.parse(text)
+      }
+      return {}
+    } catch (e) {
+      console.error('Error parsing response JSON:', e)
+      console.error('Response text that failed to parse:', text)
+      throw new Error(`Invalid response from server. Status: ${response.status}, Response: ${text.substring(0, 200)}`)
+    }
+  } catch (error: any) {
+    // Handle network errors
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      console.error('Network error:', error)
+      throw new Error('Network error: Could not connect to server.')
+    }
+    // Re-throw other errors
+    throw error
   }
 }
 

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { query, initDatabase } from '@/lib/db'
 import { getAuthenticatedUser } from '@/lib/api-auth'
 
+// Ensure this runs on Node.js runtime (required for database connections)
+export const runtime = 'nodejs'
+
 // Initialize database on first request
 let dbInitialized = false
 

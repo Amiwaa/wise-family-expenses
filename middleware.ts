@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server'
 
 export default withAuth(
   function middleware(req) {
+    // For API routes, let them handle their own authentication and return JSON errors
+    // Don't redirect to sign-in page for API routes
+    if (req.nextUrl.pathname.startsWith('/api/') && !req.nextUrl.pathname.startsWith('/api/auth')) {
+      return NextResponse.next()
+    }
     return NextResponse.next()
   },
   {
@@ -15,7 +20,11 @@ export default withAuth(
         if (req.nextUrl.pathname.startsWith('/auth')) {
           return true
         }
-        // Require authentication for all other routes
+        // For API routes, let them through (they'll handle auth and return JSON)
+        if (req.nextUrl.pathname.startsWith('/api/')) {
+          return true
+        }
+        // Require authentication for all other routes (pages)
         return !!token
       },
     },
