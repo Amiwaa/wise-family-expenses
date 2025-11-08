@@ -14,15 +14,20 @@ Your app is already deployed at: **https://wise-family-expenses.vercel.app**
 
 ## 🤖 For Android (Chrome/Edge)
 
+**Important:** On Android, "Add to Home screen" IS the install option. There's no separate "Install app" menu item - that's the standard way to install PWAs on Android.
+
 1. **Open Chrome or Edge** on your Android phone
 2. **Go to**: `https://wise-family-expenses.vercel.app`
 3. **Sign in** with Google (if not already signed in)
 4. **Tap the menu** (three dots ☰) in the top-right corner
-5. **Tap "Add to Home screen"** or **"Install app"**
-6. **Tap "Install"** or "Add" in the popup
+5. **Tap "Add to Home screen"** (this IS the install option!)
+6. **Tap "Add"** or "Install" in the popup
 7. **Done!** The app icon will appear on your home screen
 
-**Note:** Some browsers may show an install banner at the bottom, but the menu option (three dots → "Add to Home screen") is the standard and most reliable method.
+**Note:** 
+- "Add to Home screen" = Install PWA (this is correct!)
+- Some browsers may show an automatic install banner, but the menu option always works
+- After installation, the app opens in standalone mode (no browser UI)
 
 ## ✅ After Installation
 
