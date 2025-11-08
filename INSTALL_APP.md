@@ -8,22 +8,16 @@ This app is a Progressive Web App (PWA) that can be installed on your phone and 
 
 ### For Android Phones (Chrome/Edge)
 
-#### Method 1: Automatic Prompt (Recommended)
-1. **Open Chrome or Edge** on your Android phone
-2. **Go to**: `https://wise-family-expenses.vercel.app`
-3. **Sign in** with Google (if not already signed in)
-4. **Look for the install banner** at the bottom that says "Add to Home screen" or "Install app"
-5. **Tap "Install"** or "Add"
-6. **Done!** The app icon will appear on your home screen
-
-#### Method 2: Manual (If prompt doesn't show)
 1. **Open Chrome or Edge** on your Android phone
 2. **Go to**: `https://wise-family-expenses.vercel.app`
 3. **Sign in** with Google (if not already signed in)
 4. **Tap the menu** (three dots ☰) in the top-right corner
 5. **Tap "Add to Home screen"** or **"Install app"**
-6. **Tap "Install"** or "Add"
+   - Note: Some browsers may show an install banner at the bottom, but the menu option always works
+6. **Tap "Install"** or "Add" in the popup
 7. **Done!** The app icon will appear on your home screen
+
+**Note:** The install banner may not always appear automatically. Using the menu option (three dots → "Add to Home screen") is the standard and most reliable method.
 
 ### For iPhone/iPad (Safari)
 
