@@ -142,44 +142,67 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('GET /api/families - Starting request')
+    
     if (!dbInitialized) {
-      await initDatabase()
-      dbInitialized = true
+      console.log('Initializing database...')
+      try {
+        await initDatabase()
+        dbInitialized = true
+        console.log('Database initialized successfully')
+      } catch (dbError: any) {
+        console.error('Database initialization error:', dbError)
+        return NextResponse.json(
+          { error: `Database initialization failed: ${dbError.message}. Please check if DATABASE_URL is set correctly and run the database migration SQL.` },
+          { status: 500 }
+        )
+      }
     }
 
     // Verify user is authenticated via Google OAuth
+    console.log('Checking authentication...')
     const user = await getAuthenticatedUser(request)
     if (!user || !user.email) {
+      console.error('Authentication failed - no user or email')
       return NextResponse.json(
         { error: 'Authentication required. Please sign in with Google.' },
         { status: 401 }
       )
     }
+    console.log('User authenticated:', user.email)
 
     // Use authenticated user's email (security: users can only access their own family)
     const email = user.email
 
     // Find family by member email
     console.log('Looking for family for email:', email.toLowerCase())
-    const result = await query(
-      `SELECT f.*, 
-              json_agg(
-                json_build_object(
-                  'id', fm.id,
-                  'email', fm.email,
-                  'name', fm.name,
-                  'isAdmin', fm.is_admin,
-                  'joinedAt', fm.joined_at
-                )
-              ) as members
-       FROM families f
-       JOIN family_members fm ON f.id = fm.family_id
-       WHERE fm.email = $1
-       GROUP BY f.id`,
-      [email.toLowerCase()]
-    )
-
-    console.log('Family query result:', result.rows.length, 'families found')
+    let result
+    try {
+      result = await query(
+        `SELECT f.*, 
+                json_agg(
+                  json_build_object(
+                    'id', fm.id,
+                    'email', fm.email,
+                    'name', fm.name,
+                    'isAdmin', fm.is_admin,
+                    'joinedAt', fm.joined_at
+                  )
+                ) as members
+         FROM families f
+         JOIN family_members fm ON f.id = fm.family_id
+         WHERE fm.email = $1
+         GROUP BY f.id`,
+        [email.toLowerCase()]
+      )
+      console.log('Family query result:', result.rows.length, 'families found')
+    } catch (dbError: any) {
+      console.error('Database query error:', dbError)
+      return NextResponse.json(
+        { error: `Database error: ${dbError.message}. Please check if database tables are initialized.` },
+        { status: 500 }
+      )
+    }
 
     if (result.rows.length === 0) {
       console.log('No family found for email:', email.toLowerCase())
@@ -190,6 +213,7 @@ export async function GET(request: NextRequest) {
     }
 
     const family = result.rows[0]
+    console.log('Returning family data for:', email)
     return NextResponse.json({
       id: family.id,
       familyName: family.family_name,
@@ -198,9 +222,17 @@ export async function GET(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error fetching family:', error)
+    console.error('Error stack:', error.stack)
+    // Ensure we always return valid JSON
+    const errorMessage = error?.message || 'Failed to fetch family'
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch family' },
-      { status: 500 }
+      { error: errorMessage },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     )
   }
 }

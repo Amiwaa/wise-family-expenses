@@ -63,7 +63,8 @@ export default function AuthScreen() {
         setCreatingFamily(true)
       }
     } catch (error: any) {
-      console.log('Error checking family:', error?.message || error)
+      console.error('Error checking family:', error?.message || error)
+      console.error('Full error:', error)
       
       // If it's a timeout or network error, show error message
       if (error?.message?.includes('timeout') || error?.message?.includes('Failed to fetch')) {
@@ -80,14 +81,27 @@ export default function AuthScreen() {
         return
       }
       
-      // For 404 or "Family not found", user is not in a family yet
+      // For 404 or "Family not found", user is not in a family yet - this is OK
       if (error?.message?.includes('404') || error?.message?.includes('Family not found')) {
         console.log('User not in a family, showing creation form')
         setCreatingFamily(true)
-      } else {
-        // Other errors - still show creation form as fallback
-        console.log('Unknown error, showing creation form as fallback')
-        setCreatingFamily(true)
+      } 
+      // Database errors - tables might not exist
+      else if (error?.message?.includes('Database') || 
+               error?.message?.includes('relation') || 
+               error?.message?.includes('does not exist') ||
+               error?.message?.includes('500')) {
+        console.error('Database error detected:', error?.message)
+        setError(`Database Error: ${error?.message}\n\n💡 The database tables may not be initialized. Please run the database migration SQL in your Neon SQL Editor. Check Vercel logs for details.`)
+        setCheckingFamily(false)
+        return
+      } 
+      // Other errors - show error message instead of falling back to create form
+      else {
+        console.error('Unexpected error:', error?.message)
+        setError(`Error: ${error?.message || 'Unknown error occurred'}\n\nPlease check the browser console and Vercel logs for more details.`)
+        setCheckingFamily(false)
+        return
       }
     } finally {
       setCheckingFamily(false)
@@ -135,9 +149,26 @@ export default function AuthScreen() {
       router.push('/dashboard')
     } catch (error: any) {
       console.error('Error creating family:', error)
-      // Show more detailed error message
+      console.error('Error details:', {
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name,
+      })
+      
+      // Show the actual error message from the API
       const errorMessage = error?.message || 'Failed to create family. Please try again.'
-      setError(errorMessage + ' (Check browser console and Vercel logs for details)')
+      
+      // Provide helpful guidance based on error type
+      let displayMessage = errorMessage
+      if (errorMessage.includes('Database') || errorMessage.includes('relation') || errorMessage.includes('does not exist')) {
+        displayMessage = `${errorMessage}\n\n💡 Solution: Database tables may not be initialized. Please run the database migration SQL in your Neon SQL Editor.`
+      } else if (errorMessage.includes('Authentication') || errorMessage.includes('401')) {
+        displayMessage = `${errorMessage}\n\n💡 Solution: Please sign out and sign in again with Google.`
+      } else if (errorMessage.includes('Connection') || errorMessage.includes('timeout')) {
+        displayMessage = `${errorMessage}\n\n💡 Solution: Check your DATABASE_URL environment variable in Vercel.`
+      }
+      
+      setError(displayMessage)
       setLoading(false)
     }
   }
@@ -209,9 +240,9 @@ export default function AuthScreen() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  <p className="font-semibold mb-1">Error:</p>
-                  <p>{error}</p>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm whitespace-pre-line">
+                  <p className="font-semibold mb-2">Error:</p>
+                  <p className="whitespace-pre-line">{error}</p>
                 </div>
               )}
 
