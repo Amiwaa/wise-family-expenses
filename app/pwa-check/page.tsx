@@ -55,7 +55,7 @@ export default function PWACheckPage() {
         try {
           const registration = await navigator.serviceWorker.getRegistration()
           serviceWorker = !!registration
-          if (!serviceWorker) {
+          if (!serviceWorker || !registration) {
             errors.push('Service worker not registered')
           } else {
             // Check if service worker is controlling the page
