@@ -4,45 +4,37 @@ This app is a Progressive Web App (PWA) that can be installed on your phone and 
 
 ## 📱 Installation Instructions
 
+**Your app is deployed at**: `https://wise-family-expenses.vercel.app`
+
 ### For Android Phones (Chrome/Edge)
 
-1. **Open the app in Chrome/Edge browser** on your Android phone
-   - Make sure you're accessing the deployed version (not localhost)
-   - The app must be served over HTTPS (required for PWA installation)
+#### Method 1: Automatic Prompt (Recommended)
+1. **Open Chrome or Edge** on your Android phone
+2. **Go to**: `https://wise-family-expenses.vercel.app`
+3. **Sign in** with Google (if not already signed in)
+4. **Look for the install banner** at the bottom that says "Add to Home screen" or "Install app"
+5. **Tap "Install"** or "Add"
+6. **Done!** The app icon will appear on your home screen
 
-2. **Look for the install prompt**
-   - You should see a banner at the bottom saying "Add to Home screen" or "Install app"
-   - If you don't see it, look for the menu (three dots) in the browser
-
-3. **Install via browser menu**
-   - Tap the three dots (☰) menu in the top-right corner
-   - Select "Add to Home screen" or "Install app"
-   - Confirm the installation
-
-4. **Find the app**
-   - The app icon will appear on your home screen
-   - Tap it to open the app in standalone mode (no browser UI)
+#### Method 2: Manual (If prompt doesn't show)
+1. **Open Chrome or Edge** on your Android phone
+2. **Go to**: `https://wise-family-expenses.vercel.app`
+3. **Sign in** with Google (if not already signed in)
+4. **Tap the menu** (three dots ☰) in the top-right corner
+5. **Tap "Add to Home screen"** or **"Install app"**
+6. **Tap "Install"** or "Add"
+7. **Done!** The app icon will appear on your home screen
 
 ### For iPhone/iPad (Safari)
 
-1. **Open the app in Safari** on your iPhone/iPad
-   - Make sure you're accessing the deployed version (not localhost)
-   - The app must be served over HTTPS
-
-2. **Tap the Share button**
-   - Look for the share icon (square with arrow pointing up) at the bottom
-
-3. **Select "Add to Home Screen"**
-   - Scroll down in the share menu
-   - Tap "Add to Home Screen"
-
-4. **Customize the name** (optional)
-   - You can change the app name before adding
-   - Tap "Add" in the top-right corner
-
-5. **Find the app**
-   - The app icon will appear on your home screen
-   - Tap it to open the app in standalone mode
+1. **Open Safari** on your iPhone/iPad
+2. **Go to**: `https://wise-family-expenses.vercel.app`
+3. **Sign in** with Google (if not already signed in)
+4. **Tap the Share button** (square with arrow pointing up) at the bottom
+5. **Scroll down** in the share menu and tap **"Add to Home Screen"**
+6. **Customize the name** (optional) - you can change it before adding
+7. **Tap "Add"** in the top-right corner
+8. **Done!** The app icon will appear on your home screen
 
 ## 🚀 Deploying for Installation
 
