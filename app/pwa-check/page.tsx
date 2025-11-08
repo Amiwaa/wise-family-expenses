@@ -6,12 +6,14 @@ export default function PWACheckPage() {
   const [status, setStatus] = useState<{
     manifest: boolean
     serviceWorker: boolean
+    serviceWorkerControlling: boolean
     installable: boolean
     displayMode: string
     errors: string[]
   }>({
     manifest: false,
     serviceWorker: false,
+    serviceWorkerControlling: false,
     installable: false,
     displayMode: 'unknown',
     errors: [],
@@ -22,6 +24,7 @@ export default function PWACheckPage() {
       const errors: string[] = []
       let manifest = false
       let serviceWorker = false
+      let serviceWorkerControlling = false
       let installable = false
       let displayMode = 'unknown'
 
@@ -56,13 +59,16 @@ export default function PWACheckPage() {
             errors.push('Service worker not registered')
           } else {
             // Check if service worker is controlling the page
-            const isControlling = !!navigator.serviceWorker.controller
-            if (!isControlling) {
+            serviceWorkerControlling = !!navigator.serviceWorker.controller
+            if (!serviceWorkerControlling) {
               errors.push('Service worker registered but not controlling the page. Try reloading the page.')
             }
             // Check service worker state
             if (registration.active) {
               console.log('Service Worker state: active')
+              if (!serviceWorkerControlling) {
+                console.log('⚠️ Service Worker is active but not controlling. Page needs reload.')
+              }
             } else if (registration.waiting) {
               errors.push('Service worker is waiting. It may need to be activated.')
             } else if (registration.installing) {
@@ -78,16 +84,16 @@ export default function PWACheckPage() {
 
       // Check if installable
       // For proper installation, service worker must be registered AND controlling the page
-      const isControlling = !!navigator.serviceWorker.controller
-      if (manifest && serviceWorker && isControlling) {
+      if (manifest && serviceWorker && serviceWorkerControlling) {
         installable = true
-      } else if (manifest && serviceWorker && !isControlling) {
+      } else if (manifest && serviceWorker && !serviceWorkerControlling) {
         errors.push('Service worker is registered but not controlling. Reload the page to activate it.')
       }
 
       setStatus({
         manifest,
         serviceWorker,
+        serviceWorkerControlling,
         installable,
         displayMode,
         errors,
@@ -119,8 +125,8 @@ export default function PWACheckPage() {
 
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <span className="font-semibold">Service Worker Controlling</span>
-            <span className={typeof window !== 'undefined' && navigator.serviceWorker?.controller ? 'text-green-600' : 'text-yellow-600'}>
-              {typeof window !== 'undefined' && navigator.serviceWorker?.controller ? '✅ Yes' : '⚠️ No (reload page)'}
+            <span className={status.serviceWorkerControlling ? 'text-green-600' : 'text-yellow-600'}>
+              {status.serviceWorkerControlling ? '✅ Yes' : '⚠️ No (reload page)'}
             </span>
           </div>
 
